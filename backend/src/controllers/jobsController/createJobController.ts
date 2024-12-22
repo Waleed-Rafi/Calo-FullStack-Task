@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
-import { readJobs, writeJobs } from "../utils/jobsFileHandler";
-import { getTimeStamp } from "../utils/getTimestamp";
-import { jobQueue } from "../queue/JobQueue";
-import { TJobs } from "../types/Job";
-import { logger } from "../logger/customerLogger";
+import { readJobs, writeJobs } from "../../utils/jobsFileHandler";
+import { getTimeStamp } from "../../utils/getTimestamp";
+import { jobQueue } from "../../queue/JobQueue";
+import { TJobs } from "../../types/Job";
+import { logger } from "../../logger/customerLogger";
 
 export const createJob = async (req: Request, res: Response) => {
   try {
