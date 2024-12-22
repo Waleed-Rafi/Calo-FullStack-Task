@@ -1,8 +1,5 @@
 import axios from "axios";
-const {
-  UNSPLASH_BASE_URL,
-  UNSPLASH_ACCESS_KEY,
-} = require("../config/appConfig");
+import { UNSPLASH_BASE_URL, UNSPLASH_ACCESS_KEY } from "../config/appConfig";
 import { logger } from "../logger/customerLogger";
 
 export const fetchRandomImageFromUnsplash = async (): Promise<string> => {
