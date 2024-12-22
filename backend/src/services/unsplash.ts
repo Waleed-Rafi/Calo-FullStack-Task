@@ -1,8 +1,6 @@
 import axios from "axios";
-const {
-  UNSPLASH_BASE_URL,
-  UNSPLASH_ACCESS_KEY,
-} = require("../config/appConfig");
+import { UNSPLASH_BASE_URL, UNSPLASH_ACCESS_KEY } from "../config/appConfig";
+import { logger } from "../logger/customerLogger";
 
 export const fetchRandomImageFromUnsplash = async (): Promise<string> => {
   try {
@@ -19,10 +17,10 @@ export const fetchRandomImageFromUnsplash = async (): Promise<string> => {
     }
 
     const randomImage: string = images[0].urls.full;
-    console.log(`Fetched random image: ${randomImage}`);
+    logger.info(`Fetched random image: ${randomImage}`);
     return randomImage;
   } catch (error) {
-    console.log(`Error fetching image from Unsplash: ${error}`);
+    logger.error(`Error fetching image from Unsplash: ${error}`);
     throw new Error("Failed to fetch image from Unsplash");
   }
 };

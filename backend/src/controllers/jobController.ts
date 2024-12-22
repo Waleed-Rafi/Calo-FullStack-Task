@@ -4,6 +4,7 @@ import { readJobs, writeJobs } from "../utils/jobsFileHandler";
 import { getTimeStamp } from "../utils/getTimestamp";
 import { jobQueue } from "../queue/JobQueue";
 import { TJobs } from "../types/Job";
+import { logger } from "../logger/customerLogger";
 
 export const createJob = async (req: Request, res: Response) => {
   try {
@@ -27,7 +28,7 @@ export const createJob = async (req: Request, res: Response) => {
 
     res.status(202).json({ jobId });
   } catch (error) {
-    console.error("Error creating job:", error);
+    logger.error(`Error creating job: ${error}`);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

@@ -14,4 +14,4 @@ app.use(rateLimiter);
 app.use("/", testRoutes);
 app.use("/", jobRoutes);
 
-module.exports = app;
+export default app;
