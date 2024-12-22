@@ -1,6 +1,6 @@
 export type TJobs = {
   id: string;
-  status: string;
+  status: "pending" | "completed" | "failed";
   result: string | null;
   createDate: string;
   lastUpdateDate: string;
