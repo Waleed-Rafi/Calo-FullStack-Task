@@ -7,6 +7,7 @@ import { logger } from "../logger/customerLogger";
 const MIN_DELAY = 5 * 1000;
 const MAX_DELAY = 1 * 60 * 1000;
 const POLL_INTERVAL = 5 * 1000;
+let inProgresJobs = false;
 
 async function processJob(jobId: string) {
   const delay =
@@ -28,6 +29,7 @@ async function processJob(jobId: string) {
 }
 
 const processQueue = async () => {
+  inProgresJobs = true;
   const jobBody = jobQueue.dequeue();
   if (jobBody) {
     const jobs = await readJobs();
@@ -44,6 +46,7 @@ const processQueue = async () => {
     jobs[targetJobIndex] = jobBody;
     await writeJobs(jobs);
     logger.info("writing complete");
+    inProgresJobs = false;
   } else {
     logger.info("No jobs in the queue. Waiting...");
   }
@@ -51,7 +54,7 @@ const processQueue = async () => {
 
 export const jobWorker = () => {
   setInterval(async () => {
-    if (jobQueue.getSize() > 0) {
+    if (jobQueue.getSize() > 0 && !inProgresJobs) {
       processQueue();
     }
   }, POLL_INTERVAL);
