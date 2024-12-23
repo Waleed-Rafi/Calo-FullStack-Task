@@ -1,5 +1,4 @@
 import express from "express";
-import testRoutes from "./routes/test";
 import jobRoutes from "./routes/jobs";
 import { rateLimiter } from "./middlewares/rateLimiter";
 import { jobWorker } from "./workers/jobProcessor";
@@ -11,7 +10,6 @@ jobWorker();
 app.use(express.json());
 app.use(rateLimiter);
 
-app.use("/", testRoutes);
 app.use("/", jobRoutes);
 
 export default app;
