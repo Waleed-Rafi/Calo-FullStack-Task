@@ -26,7 +26,7 @@ export const createJob = async (req: Request, res: Response) => {
 
     jobQueue.enqueue(newJob);
 
-    res.status(202).json({ jobId });
+    res.status(202).json(newJob);
   } catch (error) {
     logger.error(`Error creating job: ${error}`);
     res.status(500).json({ message: "Internal Server Error" });
