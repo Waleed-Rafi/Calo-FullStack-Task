@@ -11,11 +11,7 @@ export const getJobsService = async (page: number, limit: number) => {
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
 
-  const paginatedJobs = sortedJobs.slice(startIndex, endIndex).map((job) => ({
-    id: job.id,
-    status: job.status,
-    result: job.result,
-  }));
+  const paginatedJobs = sortedJobs.slice(startIndex, endIndex);
 
   return {
     page,
