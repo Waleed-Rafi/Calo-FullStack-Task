@@ -6,3 +6,11 @@ export interface Job {
   createDate: string;
   lastUpdateDate: string;
 }
+
+export interface JobsResponse {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  jobs: Job[];
+}

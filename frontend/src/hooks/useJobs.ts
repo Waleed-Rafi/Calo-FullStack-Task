@@ -1,72 +1,128 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  InfiniteData,
+} from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Job } from "../types/job";
+import { Job, JobsResponse } from "../types/job";
 
-const fetchJobs = async (): Promise<Job[]> => {
-  const response = await axios.get("http://localhost:5001/jobs");
-  return response.data.jobs;
+const fetchJobs = async (page: number): Promise<JobsResponse> => {
+  const { data } = await axios.get(`http://localhost:5001/jobs?page=${page}`);
+  return data;
 };
 
 const fetchJobById = async (id: string): Promise<Job> => {
-  const response = await axios.get(`http://localhost:5001/jobs/${id}`);
-  return response.data;
+  const { data } = await axios.get(`http://localhost:5001/jobs/${id}`);
+  return data;
 };
 
-const createJob = async (): Promise<Job> => {
-  const response = await axios.post("http://localhost:5001/jobs");
-  return response.data; // Return the newly created job
+const createJob = async () => {
+  const { data } = await axios.post("http://localhost:5001/jobs");
+  return data;
 };
 
 export const useJobs = () => {
   const queryClient = useQueryClient();
   const [pendingJobs, setPendingJobs] = useState<string[]>([]);
 
-  const jobsQuery = useQuery<Job[], Error>({
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    status,
+  } = useInfiniteQuery({
     queryKey: ["jobs"],
-    queryFn: fetchJobs,
+    queryFn: ({ pageParam = 1 }) => fetchJobs(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    // Add this to prevent double fetching
+    select: (data) => ({
+      pages: [...data.pages],
+      pageParams: [...data.pageParams],
+    }),
   });
 
-  const createNewJobMutation = useMutation<Job, Error, Partial<Job>>({
+  const createJobMutation = useMutation({
     mutationFn: createJob,
-    onSuccess: (newJob) => {
+    onSuccess: (newJob: Job) => {
       if (newJob.status === "pending") {
         setPendingJobs((prev) => [...prev, newJob.id]);
       }
 
-      queryClient.setQueryData<Job[]>(["jobs"], (oldJobs) => [
-        newJob,
-        ...(oldJobs || []),
-      ]);
+      queryClient.setQueryData<InfiniteData<JobsResponse>>(
+        ["jobs"],
+        (oldData) => {
+          if (!oldData?.pages?.length) return oldData;
+
+          return {
+            ...oldData,
+            pages: [
+              {
+                ...oldData.pages[0],
+                jobs: [newJob, ...oldData.pages[0].jobs],
+              },
+              ...oldData.pages.slice(1),
+            ],
+          };
+        }
+      );
     },
   });
 
-  // Polling logic for updating pending jobs
   useEffect(() => {
+    if (pendingJobs.length === 0) return;
+
     const intervalId = setInterval(async () => {
-      try {
-        for (const jobId of pendingJobs) {
+      for (const jobId of pendingJobs) {
+        try {
           const updatedJob = await fetchJobById(jobId);
 
           if (updatedJob.status !== "pending") {
-            queryClient.setQueryData<Job[]>(["jobs"], (oldJobs) =>
-              oldJobs?.map((job) => (job.id === jobId ? updatedJob : job))
-            );
-
             setPendingJobs((prev) => prev.filter((id) => id !== jobId));
+
+            queryClient.setQueryData<InfiniteData<JobsResponse>>(
+              ["jobs"],
+              (oldData) => {
+                if (!oldData?.pages) return oldData;
+
+                return {
+                  ...oldData,
+                  pages: oldData.pages.map((page) => ({
+                    ...page,
+                    jobs: page.jobs.map((job) =>
+                      job.id === jobId ? updatedJob : job
+                    ),
+                  })),
+                };
+              }
+            );
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            console.error(`Error polling job ${jobId}:`, error.message);
           }
         }
-      } catch (error) {
-        console.error("Error polling job status:", error);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 5000);
 
     return () => clearInterval(intervalId);
   }, [pendingJobs, queryClient]);
 
+  const safeData = data?.pages.flatMap((page) => page.jobs) ?? [];
+
   return {
-    ...jobsQuery,
-    createNewJob: createNewJobMutation.mutateAsync,
-    isCreating: createNewJobMutation.isPending,
+    jobs: safeData,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    createJob: createJobMutation.mutate,
+    isCreating: createJobMutation.isPending,
+    status,
   };
 };
