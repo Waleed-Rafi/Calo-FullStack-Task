@@ -32,8 +32,6 @@ const processQueue = async () => {
   inProgresJobs = true;
   const jobBody = jobQueue.dequeue();
   if (jobBody) {
-    const jobs = await readJobs();
-    const targetJobIndex = jobs.findIndex((job) => job.id === jobBody.id);
     try {
       const jobResult = await processJob(jobBody.id);
       jobBody.status = "completed";
@@ -42,6 +40,8 @@ const processQueue = async () => {
       logger.error(`something went wrong with processing job ${error}`);
       jobBody.status = "failed";
     }
+    const jobs = await readJobs();
+    const targetJobIndex = jobs.findIndex((job) => job.id === jobBody.id);
     jobBody.lastUpdateDate = getTimeStamp();
     jobs[targetJobIndex] = jobBody;
     await writeJobs(jobs);
