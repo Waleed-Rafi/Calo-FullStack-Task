@@ -36,12 +36,18 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => (
             </p>
           </div>
           {job.result && (
-            <div className="col-span-2">
+            <div className="col-span-2 md:w-1/3">
               <p className="text-xs text-gray-500 uppercase tracking-wider">
                 Result URL
               </p>
               <p className="mt-1 text-sm font-medium text-blue-600 hover:text-blue-800 truncate cursor-pointer">
-                {job.result}
+                <a
+                  href={job.result}
+                  target="_blank"
+                  className="block w-full truncate"
+                >
+                  {job.result}
+                </a>
               </p>
             </div>
           )}
