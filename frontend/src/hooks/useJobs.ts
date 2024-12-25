@@ -5,21 +5,21 @@ import {
   InfiniteData,
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Job, JobsResponse } from "../types/job";
+import apiClient from "../services/apiClient";
 
 const fetchJobs = async (page: number): Promise<JobsResponse> => {
-  const { data } = await axios.get(`http://localhost:5001/jobs?page=${page}`);
+  const { data } = await apiClient.get(`/jobs?page=${page}`);
   return data;
 };
 
 const fetchJobById = async (id: string): Promise<Job> => {
-  const { data } = await axios.get(`http://localhost:5001/jobs/${id}`);
+  const { data } = await apiClient.get(`/jobs/${id}`);
   return data;
 };
 
 const createJob = async () => {
-  const { data } = await axios.post("http://localhost:5001/jobs");
+  const { data } = await apiClient.post("/jobs");
   return data;
 };
 
