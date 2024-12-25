@@ -38,25 +38,20 @@ describe("createJob", () => {
 
     await createJob(req, res);
 
-    expect(readJobs).toHaveBeenCalled();
-    expect(writeJobs).toHaveBeenCalledWith([
-      {
-        id: expect.any(String),
-        status: "pending",
-        result: null,
-        createDate: "2024-12-23T12:00:00Z",
-        lastUpdateDate: "2024-12-23T12:00:00Z",
-      },
-    ]);
-    expect(jobQueue.enqueue).toHaveBeenCalledWith({
+    const expectedJobResponse = {
       id: expect.any(String),
       status: "pending",
       result: null,
       createDate: "2024-12-23T12:00:00Z",
       lastUpdateDate: "2024-12-23T12:00:00Z",
-    });
+    };
+
+    expect(readJobs).toHaveBeenCalled();
+    expect(writeJobs).toHaveBeenCalledWith([expectedJobResponse]);
+    expect(jobQueue.enqueue).toHaveBeenCalledWith(expectedJobResponse);
+
     expect(res.status).toHaveBeenCalledWith(202);
-    expect(res.json).toHaveBeenCalledWith({ jobId: expect.any(String) });
+    expect(res.json).toHaveBeenCalledWith(expectedJobResponse);
   });
 
   it("should handle errors and respond with a 500 status code", async () => {
