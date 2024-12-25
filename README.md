@@ -112,6 +112,13 @@ npm run test
 3. Caching for faster data access
 4. Better user interface
 
+### Timelines
+
+1. **Sunday:** Spent a total of **~6 hours** focusing on **architecture design**, **UI research**, and setting up a **basic layout** for the project, primarily backend.
+2. **Monday:** Dedicated **~4 hours** to implementing and testing **Get Jobs** and **Get Job by ID** functionalities on backend.
+3. **Tuesday:** Worked for **~4 hours** to complete **remaining unit tests**, fix backend bugs, and spend **1 hour** on initial frontend project setup.
+4. **Wednesday:** Worked for **~6 hours** in designing various UI components (**card, badge, button, dashboard, api integrations**) along with writing unit tests and resolving bugs and 30 minutes for writing documentation.
+
 ## Need Help?
 
 If you have any problems setting up or running the project, please email me. I'm happy to jump on a quick call to help fix any issues.
